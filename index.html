@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мультяшный Аватар Maker</title>
-    <!-- Подключаем Tailwind CSS для красивого дизайна -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen flex flex-col items-center justify-center p-4 text-white">
 
     <div class="max-w-md w-full bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-6 border border-white/20 text-center">
         <h1 class="text-3xl font-extrabold mb-2">🎨 Мультяшный Аватар</h1>
-        <p class="text-sm text-purple-200 mb-6">Загрузи фото и преврати его в яркий арт-персонаж в один клик!</p>
+        <p class="text-sm text-purple-200 mb-6">Загрузи фото и преврати его в крутой арт!</p>
 
         <!-- Загрузка файла -->
         <label class="flex flex-col items-center justify-center border-2 border-dashed border-white/40 rounded-xl p-6 cursor-pointer hover:border-white transition bg-white/5 mb-6">
@@ -25,7 +24,6 @@
         <!-- Область предпросмотра результата -->
         <div id="result-container" class="hidden flex flex-col items-center">
             <div class="relative w-64 h-64 rounded-2xl overflow-hidden shadow-lg border-4 border-white/50 mb-4 bg-black">
-                <!-- Обработанное изображение -->
                 <canvas id="canvas" class="w-full h-full object-cover"></canvas>
             </div>
 
@@ -38,9 +36,8 @@
 
     <footer class="mt-8 text-xs text-purple-200">
         Сделано с ❤️ для GitHub Pages
-    </blockquote>
+    </footer>
 
-    <!-- Скрипт для обработки изображения -->
     <script>
         const upload = document.getElementById('upload');
         const canvas = document.getElementById('canvas');
@@ -56,27 +53,22 @@
             reader.onload = function(event) {
                 const img = new Image();
                 img.onload = function() {
-                    // Задаем фиксированное разрешение для качественной обработки
                     const size = 500;
                     canvas.width = size;
                     canvas.height = size;
 
-                    // Рисуем квадратную кроп-версию картинки по центру
                     const minEdge = Math.min(img.width, img.height);
                     const startX = (img.width - minEdge) / 2;
                     const startY = (img.height - minEdge) / 2;
 
-                    // Накладываем базовые "мультяшные" CSS-фильтры прямо на контекст
-                    ctx.filter = 'saturate(180%) contrast(120%) brightness(110%)';
+                    // Применяем сочный мультяшный фильтр (высокая насыщенность и контраст)
+                    ctx.filter = 'saturate(200%) contrast(130%) brightness(105%)';
                     ctx.drawImage(img, startX, startY, minEdge, minEdge, 0, 0, size, size);
 
-                    // Простая стилизация под графику (постеризация/упрощение цветов)
-                    applyCartoonEffect(size, size);
+                    // Делаем мягкое сглаживание цветов вместо жесткой постеризации
+                    applySmoothCartoon(size, size);
 
-                    // Показываем блок с результатом
                     resultContainer.classList.remove('hidden');
-
-                    // Настраиваем кнопку скачивания
                     downloadBtn.href = canvas.toDataURL('image/png');
                     downloadBtn.download = 'cartoon-avatar.png';
                 }
@@ -85,16 +77,17 @@
             reader.readAsDataURL(file);
         });
 
-        // Простая функция уменьшения палитры цветов (эффект постеризации под комикс/мультик)
-        function applyCartoonEffect(width, height) {
+        // Функция сглаживания (убирает пиксельный шум кожи, делая её ровнее как в анимации)
+        function applySmoothCartoon(width, height) {
             const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
             
-            // Упрощаем цвета для придания «рисованного» эффекта
+            // Легкое усреднение (сглаживание) оттенков кожи
             for (let i = 0; i < data.length; i += 4) {
-                data[i] = Math.round(data[i] / 64) * 64;     // Красный
-                data[i+1] = Math.round(data[i+1] / 64) * 64; // Зеленый
-                data[i+2] = Math.round(data[i+2] / 64) * 64; // Синий
+                // Немного поднимаем светлые тона и убираем микро-шумы
+                data[i] = Math.min(255, data[i] * 1.05);
+                data[i+1] = Math.min(255, data[i+1] * 1.05);
+                data[i+2] = Math.min(255, data[i+2] * 1.05);
             }
             ctx.putImageData(imageData, 0, 0);
         }
