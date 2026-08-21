@@ -8,29 +8,29 @@
 </head>
 <body class="bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-600 min-h-screen flex flex-col items-center justify-center p-4 text-white overflow-hidden select-none">
 
-    <div id="card" class="max-w-md w-full bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-8 border border-white/20 text-center relative">
+    <div id="card" class="max-w-md w-full bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-8 border border-white/25 text-center relative">
         
         <!-- Основной вопрос -->
         <div id="question-box">
             <h1 class="text-3xl font-extrabold mb-8 drop-shadow-md">Любишь меня? 💖</h1>
             
-            <div id="buttons-container" class="flex items-center justify-center gap-6 relative h-20">
-                <button id="yes-btn" class="py-3 px-8 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl transition transform hover:scale-110 shadow-lg text-lg">
+            <div class="flex items-center justify-center gap-6 relative min-h-[80px]">
+                <button id="yes-btn" class="py-3 px-8 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl transition transform hover:scale-110 shadow-lg text-lg z-10">
                     Да 🥰
                 </button>
-                <button id="no-btn" class="py-3 px-8 bg-red-500 hover:bg-red-600 text-white font-bold rounded-2xl shadow-lg text-lg transition-all absolute right-4">
+                <button id="no-btn" class="py-3 px-8 bg-red-500 hover:bg-red-600 text-white font-bold rounded-2xl shadow-lg text-lg transition-all duration-200">
                     Нет 🗿
                 </button>
             </div>
         </div>
 
-        <!-- Экран успеха (если нажал Да) -->
+        <!-- Экран успеха -->
         <div id="success-box" class="hidden flex-col items-center justify-center py-6">
             <div class="text-6xl mb-4 animate-bounce">🥰</div>
             <h2 class="text-3xl font-extrabold mb-2">Я тя тоже ❤️</h2>
         </div>
 
-        <!-- Экран с матами (если попытался сбежать больше 3 раз) -->
+        <!-- Экран с матами -->
         <div id="angry-box" class="hidden flex-col items-center justify-center py-4">
             <div class="text-6xl mb-4">🤬</div>
             <h2 class="text-2xl font-extrabold mb-6">Ты бля чепушила выбери да</h2>
@@ -52,14 +52,13 @@
 
         let noClickCount = 0;
 
-        // Логика побега и подсчета кликов по кнопке "Нет"
+        // Кнопка «Нет» убегает при наведении или попытке нажатия
         noBtn.addEventListener('mouseover', moveNoButton);
         noBtn.addEventListener('click', function(e) {
             e.preventDefault();
             noClickCount++;
             
             if (noClickCount >= 3) {
-                // Превышен лимит попыток — показываем гневное сообщение
                 questionBox.classList.add('hidden');
                 angryBox.classList.remove('hidden');
                 angryBox.classList.add('flex');
@@ -69,23 +68,25 @@
         });
 
         function moveNoButton() {
-            // Случайные координаты для убегающей кнопки
-            const x = (Math.random() - 0.5) * 200;
-            const y = (Math.random() - 0.5) * 150;
+            // Делаем кнопку абсолютной только после первого движения, чтобы она не ломала сетку изначально
+            noBtn.style.position = 'absolute';
+            const x = (Math.random() - 0.5) * 220;
+            const y = (Math.random() - 0.5) * 160;
             noBtn.style.transform = `translate(${x}px, ${y}px)`;
         }
 
-        // Если нажал «Да» на первом экране
+        // Если нажал «Да»
         yesBtn.addEventListener('click', function() {
             questionBox.classList.add('hidden');
             successBox.classList.remove('hidden');
             successBox.classList.add('flex');
         });
 
-        // Возврат из гневного экрана обратно к выбору
+        // Возврат из гневного экрана
         backBtn.addEventListener('click', function() {
-            noClickCount = 0; // Сбрасываем счетчик
-            noBtn.style.transform = `translate(0px, 0px)`; // Возвращаем кнопку на место
+            noClickCount = 0;
+            noBtn.style.position = 'static'; // возвращаем в поток
+            noBtn.style.transform = `translate(0px, 0px)`;
             angryBox.classList.remove('flex');
             angryBox.classList.add('hidden');
             questionBox.classList.remove('hidden');
