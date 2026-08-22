@@ -3,39 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Важный вопрос ❤️</title>
+    <title>Важный опрос 🧐</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-600 min-h-screen flex flex-col items-center justify-center p-4 text-white overflow-hidden select-none">
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-950 min-h-screen flex flex-col items-center justify-center p-4 text-white overflow-hidden select-none">
 
     <div id="card" class="max-w-md w-full bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-8 border border-white/25 text-center relative">
         
-        <!-- Основной вопрос -->
+        <!-- Главная страница (Вопрос) -->
         <div id="question-box">
-            <h1 class="text-3xl font-extrabold mb-8 drop-shadow-md">Любишь меня? 💖</h1>
+            <h1 class="text-3xl font-extrabold mb-8 drop-shadow-md">Женя лох? 🤔</h1>
             
-            <div class="flex items-center justify-center gap-6 relative min-h-[80px]">
-                <button id="yes-btn" class="py-3 px-8 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl transition transform hover:scale-110 shadow-lg text-lg z-10">
-                    Да 🥰
+            <div class="flex items-center justify-center gap-4 relative min-h-[80px] flex-wrap">
+                <button id="yes-btn" class="py-3 px-6 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl transition transform hover:scale-105 shadow-lg text-base">
+                    Да, Женя лох 😎
                 </button>
-                <button id="no-btn" class="py-3 px-8 bg-red-500 hover:bg-red-600 text-white font-bold rounded-2xl shadow-lg text-lg transition-all duration-200">
-                    Нет 🗿
+                <button id="no-btn" class="py-3 px-6 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl shadow-lg text-base transition">
+                    Нет, Женя не лох 🗿
                 </button>
             </div>
         </div>
 
-        <!-- Экран успеха -->
+        <!-- Экран успеха (если нажал Да) -->
         <div id="success-box" class="hidden flex-col items-center justify-center py-6">
-            <div class="text-6xl mb-4 animate-bounce">🥰</div>
-            <h2 class="text-3xl font-extrabold mb-2">Я тя тоже ❤️</h2>
+            <div class="text-6xl mb-4 animate-bounce">🔥</div>
+            <h2 class="text-2xl font-extrabold mb-2">Правильно, Женя каждый день сосет</h2>
         </div>
 
-        <!-- Экран с матами -->
+        <!-- Экран при выборе «Нет» -->
         <div id="angry-box" class="hidden flex-col items-center justify-center py-4">
-            <div class="text-6xl mb-4">🤬</div>
-            <h2 class="text-2xl font-extrabold mb-6">Ты бля чепушила выбери да</h2>
-            <button id="back-btn" class="py-3 px-8 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-2xl shadow-lg text-lg transition">
-                Ладно, да 🤝
+            <div class="text-6xl mb-4">🤡</div>
+            <h2 class="text-2xl font-extrabold mb-6">Женя чепушила</h2>
+            <button id="back-btn" class="py-3 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg text-lg transition">
+                Понял, вернуться 🤝
             </button>
         </div>
 
@@ -50,43 +50,22 @@
         const successBox = document.getElementById('success-box');
         const angryBox = document.getElementById('angry-box');
 
-        let noClickCount = 0;
-
-        // Кнопка «Нет» убегает при наведении или попытке нажатия
-        noBtn.addEventListener('mouseover', moveNoButton);
-        noBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            noClickCount++;
-            
-            if (noClickCount >= 3) {
-                questionBox.classList.add('hidden');
-                angryBox.classList.remove('hidden');
-                angryBox.classList.add('flex');
-            } else {
-                moveNoButton();
-            }
+        // Если выбрал «Нет, Женя не лох»
+        noBtn.addEventListener('click', function() {
+            questionBox.classList.add('hidden');
+            angryBox.classList.remove('hidden');
+            angryBox.classList.add('flex');
         });
 
-        function moveNoButton() {
-            // Делаем кнопку абсолютной только после первого движения, чтобы она не ломала сетку изначально
-            noBtn.style.position = 'absolute';
-            const x = (Math.random() - 0.5) * 220;
-            const y = (Math.random() - 0.5) * 160;
-            noBtn.style.transform = `translate(${x}px, ${y}px)`;
-        }
-
-        // Если нажал «Да»
+        // Если нажал «Да, Женя лох»
         yesBtn.addEventListener('click', function() {
             questionBox.classList.add('hidden');
             successBox.classList.remove('hidden');
             successBox.classList.add('flex');
         });
 
-        // Возврат из гневного экрана
+        // Возврат на главную страницу после фразы «Женя чепушила»
         backBtn.addEventListener('click', function() {
-            noClickCount = 0;
-            noBtn.style.position = 'static'; // возвращаем в поток
-            noBtn.style.transform = `translate(0px, 0px)`;
             angryBox.classList.remove('flex');
             angryBox.classList.add('hidden');
             questionBox.classList.remove('hidden');
