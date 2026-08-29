@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CyberTube HD Mobile</title>
+    <title>CyberTube Mobile</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body {
@@ -76,7 +76,6 @@
 
     <div id="errorMsg" class="error-msg">Некорректная ссылка на YouTube.</div>
 
-    <!-- Панель управления вне плеера, чтобы ничего не перекрывалось и не обрезалось -->
     <div class="toolbar" id="toolbar" style="display: none;">
         <div class="bg-toggle" onclick="toggleBackgroundMode()">
             🎧 <span id="bgModeText">Фон (Выкл)</span>
@@ -107,9 +106,16 @@
         let historyData = JSON.parse(localStorage.getItem('cyber_history') || '[]');
         let isBackgroundActive = false;
         let currentVideoId = '';
-        let backgroundAudioHack = null;
+        let audioPlayer = null;
 
-        window.onload = renderHistory;
+        window.onload = function() {
+            renderHistory();
+            // Нативный трюк для обхода блокировки фона в мобильных браузерах (AudioContext/MediaSession)
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.setActionHandler('play', () => {});
+                navigator.mediaSession.setActionHandler('pause', () => {});
+            }
+        };
 
         function extractVideoID(url) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -141,7 +147,7 @@
             document.getElementById('nowPlayingTitle').innerText = `ID: ${id}`;
 
             if (isBackgroundActive) {
-                activateBackgroundStream(id);
+                startBackgroundAudio(id);
             }
 
             let existingIndex = historyData.findIndex(item => item.id === id);
@@ -170,34 +176,39 @@
                 text.innerText = "Фон (Вкл)";
                 text.style.color = "#34d399";
                 if (currentVideoId) {
-                    activateBackgroundStream(currentVideoId);
+                    startBackgroundAudio(currentVideoId);
                 }
-                alert("Фоновый режим активирован до конца видео. Теперь при сворачивании браузера аудиопоток продолжит играть.");
             } else {
                 text.innerText = "Фон (Выкл)";
                 text.style.color = "#38bdf8";
-                stopBackgroundStream();
+                stopBackgroundAudio();
             }
         }
 
-        function activateBackgroundStream(id) {
-            if (backgroundAudioHack) {
-                document.body.removeChild(backgroundAudioHack);
+        function startBackgroundAudio(id) {
+            stopBackgroundAudio();
+            // Использование прямого аудиопотока через публичные инстансы для честного воспроизведения звука при сворачивании
+            audioPlayer = new Audio(`https://invidious.nerdvpn.de/latest_version?id=${id}&itag=140`);
+            audioPlayer.loop = false;
+            audioPlayer.play().catch(() => {
+                // Запасной поток, если первый недоступен
+                audioPlayer = new Audio(`https://vid.puffyan.us/latest_version?id=${id}&itag=140`);
+                audioPlayer.play().catch(e => console.log("Background audio restricted"));
+            });
+
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: `YouTube Видео [${id}]`,
+                    artist: 'CyberTube Mobile',
+                    album: 'Фоновый режим'
+                });
             }
-            // Создаем невидимый аудио-контейнер для удержания фоновой сессии в iOS Safari
-            backgroundAudioHack = document.createElement('audio');
-            backgroundAudioHack.src = `https://www.youtube.com/watch?v=${id}`;
-            backgroundAudioHack.autoplay = true;
-            backgroundAudioHack.loop = false;
-            backgroundAudioHack.style.display = 'none';
-            document.body.appendChild(backgroundAudioHack);
         }
 
-        function stopBackgroundStream() {
-            if (backgroundAudioHack) {
-                backgroundAudioHack.pause();
-                document.body.removeChild(backgroundAudioHack);
-                backgroundAudioHack = null;
+        function stopBackgroundAudio() {
+            if (audioPlayer) {
+                audioPlayer.pause();
+                audioPlayer = null;
             }
         }
 
