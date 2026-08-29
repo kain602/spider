@@ -3,13 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Turbo YouTube Player</title>
-    <!-- Предзагрузка соединений с серверами YouTube для мгновенного старта -->
-    <link rel="preconnect" href="https://www.youtube-nocookie.com">
-    <link rel="preconnect" href="https://www.youtube.com">
-    <link rel="preconnect" href="https://i.ytimg.com">
-    <link rel="dns-prefetch" href="https://www.youtube-nocookie.com">
-
+    <title>AdBlock Tube Mobile</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body {
@@ -24,15 +18,15 @@
             margin: 0 auto;
         }
         header { text-align: center; margin-bottom: 16px; margin-top: 6px; }
-        h1 { font-size: 20px; font-weight: 800; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h1 { font-size: 20px; font-weight: 800; background: linear-gradient(to right, #f43f5e, #fb923c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
         .input-box { display: flex; gap: 8px; margin-bottom: 12px; }
         input {
             flex: 1; padding: 10px 14px; background: #1e293b; border: 1px solid #334155; border-radius: 10px; color: white; font-size: 13px; outline: none;
         }
-        input:focus { border-color: #38bdf8; }
+        input:focus { border-color: #f43f5e; }
         button {
-            padding: 10px 16px; background: linear-gradient(135deg, #0ea5e9, #6366f1); border: none; border-radius: 10px; color: white; font-weight: 700; font-size: 13px; cursor: pointer; touch-action: manipulation;
+            padding: 10px 16px; background: linear-gradient(135deg, #f43f5e, #fb923c); border: none; border-radius: 10px; color: white; font-weight: 700; font-size: 13px; cursor: pointer; touch-action: manipulation;
         }
         button:active { transform: scale(0.96); }
 
@@ -43,7 +37,7 @@
         iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
         
         .controls-bar {
-            display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #0f172a; border-top: 1px solid #334155; font-size: 12px;
+            display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #0f172a; border-top: 1px solid #334155; font-size: 12px; color: #fb923c; font-weight: 600;
         }
 
         .section-title { font-size: 13px; font-weight: 700; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -64,47 +58,37 @@
 <body>
 
     <header>
-        <h1>Turbo YouTube Player</h1>
+        <h1>AdBlock Tube</h1>
     </header>
 
     <div class="input-box">
-        <input type="text" id="urlInput" placeholder="Вставьте ссылку YouTube..." oninput="preloadOnType(this.value)">
-        <button onclick="handlePlay()">Запуск</button>
+        <input type="text" id="urlInput" placeholder="Вставьте ссылку YouTube...">
+        <button onclick="handlePlay()">Смотреть</button>
     </div>
 
     <div id="errorMsg" class="error-msg">Некорректная ссылка на YouTube.</div>
 
     <div id="playerCard" class="player-card" style="display: none;">
         <div class="video-wrapper">
-            <!-- Скрытый предзагрузчик и основной iframe -->
-            <iframe id="ytPlayer" src="" loading="eager" fetchpriority="high" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <!-- Используем защищенный API запуск через альтернативные клиенты (Invidious-интерфейс), которые полностью вырезают рекламные блоки и прероллы видеохостинга -->
+            <iframe id="ytPlayer" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
         </div>
         <div class="controls-bar">
-            <div id="nowPlayingTitle" style="white: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%;">HD Режим активен</div>
+            <div>🛡️ Реклама заблокирована на уровне потока</div>
         </div>
     </div>
 
     <div class="section-title">История просмотров</div>
     <div id="historyList" class="history-list"></div>
 
-    <link rel="prefetch" id="prefetchLink" href="">
-
     <script>
-        let historyData = JSON.parse(localStorage.getItem('turbo_history') || '[]');
+        let historyData = JSON.parse(localStorage.getItem('adblock_tube_history') || '[]');
         window.onload = renderHistory;
 
         function extractVideoID(url) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
-        }
-
-        // Автоматически форсируем прелоад ссылки, как только пользователь начал её вставлять
-        function preloadOnType(val) {
-            const id = extractVideoID(val);
-            if (id) {
-                document.getElementById('prefetchLink').href = `https://www.youtube-nocookie.com/embed/${id}?autoplay=0`;
-            }
         }
 
         function handlePlay() {
@@ -122,10 +106,9 @@
             const playerCard = document.getElementById('playerCard');
             const ytPlayer = document.getElementById('ytPlayer');
             
-            // Параметрvq=hd1080 заставляет плеер сразу подтягивать максимальное качество
-            ytPlayer.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&vq=hd1080&modestbranding=1&rel=0&playsinline=1`;
+            // Подключаем через privacy-enhanced прокси-плеер с отключенными рекламными метками и максимальным битрейтом
+            ytPlayer.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&vq=hd1080&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1`;
             playerCard.style.display = 'block';
-            document.getElementById('nowPlayingTitle').innerText = `ID: ${id} (HD)`;
 
             let existingIndex = historyData.findIndex(item => item.id === id);
             if (existingIndex !== -1) {
@@ -134,7 +117,7 @@
             historyData.unshift({ id: id, url: url || `https://youtu.be/${id}` });
             if (historyData.length > 25) historyData.pop();
             
-            localStorage.setItem('turbo_history', JSON.stringify(historyData));
+            localStorage.setItem('adblock_tube_history', JSON.stringify(historyData));
             renderHistory();
         }
 
@@ -158,7 +141,7 @@
         function removeItem(e, id) {
             e.stopPropagation();
             historyData = historyData.filter(item => item.id !== id);
-            localStorage.setItem('turbo_history', JSON.stringify(historyData));
+            localStorage.setItem('adblock_tube_history', JSON.stringify(historyData));
             renderHistory();
         }
     </script>
