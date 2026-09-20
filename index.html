@@ -1,27 +1,118 @@
-import turtle as t, math as m, random as r
-SCALE = 100 s = t.Screen(); s.setup(600, 700); s.bgcolor("#050002"); s.tracer(0) p = t.Turtle(); p.hideturtle(); p.penup()
-def heart(u): x = 1.6 * (m.sin(u) ** 3) y = 1.3 * m.cos(u) - 0.5 * m.cos(2u) - 0.2 * m.cos(3u) - 0.1 * m.cos(4*u) return x, y
-N = 2000 pts = [] for _ in range(N): u = r.uniform(0, 2 * m.pi) hx, hy = heart(u) rad = m.sqrt(r.random()) x, y = hx * rad, hy * rad z = 1.1 * (1 - rad) * r.uniform(-1, 1) pts.append((x, y, z))
-def get_col(f): f = max(0.0, min(1.0, f)) r1, g1, b1 = 70, 0, 10 r2, g2, b2 = 255, 30, 50 return f"#{int(r1+(r2-r1)*f):02x}{int(g1+(g2-g1)*f):02x}{int(b1+(b2-b1)*f):02x}"
-theta = 0 step = 0.035
-def loop(): global theta p.clear() ct, st = m.cos(theta), m.sin(theta)
-proj = []
-for x, y, z in pts:
-    xr = x * ct + z * st
-    zr = -x * st + z * ct
-    proj.append((xr, y, zr))
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Heart</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #050002;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
 
-proj.sort(key=lambda v: v[2])
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
 
-for xr, y, zr in proj:
-    depth = (zr + 1.1) / 2.2
-    p.goto(xr * SCALE, y * SCALE)
-    p.color(get_col(depth))
+    const WIDTH = 600;
+    const HEIGHT = 700;
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
 
-    dot_size = 2 + (depth * 2.5)
-    p.dot(dot_size)
+    const SCALE = 120;
+    const N = 2200;
+    const pts = [];
 
-s.update()
-theta += step
-s.ontimer(loop, 25)
-loop() t.mainloop()
+    // Математическая формула формы сердца
+    function heart(u) {
+      const x = 1.6 * Math.pow(Math.sin(u), 3);
+      const y = 1.3 * Math.cos(u) - 0.5 * Math.cos(2 * u) - 0.2 * Math.cos(3 * u) - 0.1 * Math.cos(4 * u);
+      return { x, y };
+    }
+
+    // Генерация 3D-точек внутри объема
+    for (let i = 0; i < N; i++) {
+      const u = Math.random() * 2 * Math.PI;
+      const h = heart(u);
+      const rad = Math.sqrt(Math.random());
+      const x = h.x * rad;
+      const y = h.y * rad;
+      const z = 1.1 * (1 - rad) * (Math.random() * 2 - 1);
+      pts.push({ x, y, z });
+    }
+
+    // Расчет цвета точки по глубине Z
+    function getCol(f) {
+      f = Math.max(0, Math.min(1, f));
+      const r1 = 70, g1 = 0, b1 = 10;
+      const r2 = 255, g2 = 30, b2 = 50;
+      const r = Math.round(r1 + (r2 - r1) * f);
+      const g = Math.round(g1 + (g2 - g1) * f);
+      const b = Math.round(b1 + (b2 - b1) * f);
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    let theta = 0;
+    const step = 0.035;
+
+    function loop() {
+      // Очистка фона
+      ctx.fillStyle = '#050002';
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      const ct = Math.cos(theta);
+      const st = Math.sin(theta);
+
+      // Вращение вокруг оси Y
+      const proj = [];
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        const xr = p.x * ct + p.z * st;
+        const zr = -p.x * st + p.z * ct;
+        proj.push({ xr, y: p.y, zr });
+      }
+
+      // Сортировка по глубине (от дальних к ближним)
+      proj.sort((a, b) => a.zr - b.zr);
+
+      // Отрисовка точек
+      const cx = WIDTH / 2;
+      const cy = HEIGHT / 2;
+
+      for (let i = 0; i < proj.length; i++) {
+        const p = proj[i];
+        const depth = (p.zr + 1.1) / 2.2;
+        const screenX = cx + p.xr * SCALE;
+        const screenY = cy - p.y * SCALE; // Минус для правильной ориентации верха/низа сердца
+        const dotSize = Math.max(0.5, (2 + depth * 2.5) / 2);
+
+        ctx.fillStyle = getCol(depth);
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, dotSize, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      theta += step;
+      setTimeout(() => requestAnimationFrame(loop), 25);
+    }
+
+    loop();
+  </script>
+</body>
+</html>
