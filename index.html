@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Heart</title>
+  <title>3D Heart with Letter H</title>
   <style>
     * {
       margin: 0;
@@ -35,18 +35,18 @@
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
 
-    const SCALE = 120;
+    const SCALE = 115;
     const N = 2200;
     const pts = [];
 
-    // Математическая формула формы сердца
+    // Математическая формула сердца
     function heart(u) {
       const x = 1.6 * Math.pow(Math.sin(u), 3);
       const y = 1.3 * Math.cos(u) - 0.5 * Math.cos(2 * u) - 0.2 * Math.cos(3 * u) - 0.1 * Math.cos(4 * u);
       return { x, y };
     }
 
-    // Генерация 3D-точек внутри объема
+    // Генерация точек объема 3D-сердца
     for (let i = 0; i < N; i++) {
       const u = Math.random() * 2 * Math.PI;
       const h = heart(u);
@@ -57,7 +57,7 @@
       pts.push({ x, y, z });
     }
 
-    // Расчет цвета точки по глубине Z
+    // Градиент цвета точек по глубине
     function getCol(f) {
       f = Math.max(0, Math.min(1, f));
       const r1 = 70, g1 = 0, b1 = 10;
@@ -72,14 +72,14 @@
     const step = 0.035;
 
     function loop() {
-      // Очистка фона
+      // Очищаем кадр
       ctx.fillStyle = '#050002';
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
       const ct = Math.cos(theta);
       const st = Math.sin(theta);
 
-      // Вращение вокруг оси Y
+      // Вращение точек вокруг вертикальной оси
       const proj = [];
       for (let i = 0; i < pts.length; i++) {
         const p = pts[i];
@@ -88,19 +88,27 @@
         proj.push({ xr, y: p.y, zr });
       }
 
-      // Сортировка по глубине (от дальних к ближним)
+      // Сортировка по глубине Z
       proj.sort((a, b) => a.zr - b.zr);
 
-      // Отрисовка точек
       const cx = WIDTH / 2;
       const cy = HEIGHT / 2;
 
+      // Отрисовка дальних точек сердца (позади буквы)
+      let letterDrawn = false;
       for (let i = 0; i < proj.length; i++) {
         const p = proj[i];
+
+        // Когда переходим к передней половине точек (zr >= 0), рисуем букву по центру
+        if (!letterDrawn && p.zr >= 0) {
+          drawLetter(cx, cy);
+          letterDrawn = true;
+        }
+
         const depth = (p.zr + 1.1) / 2.2;
         const screenX = cx + p.xr * SCALE;
-        const screenY = cy - p.y * SCALE; // Минус для правильной ориентации верха/низа сердца
-        const dotSize = Math.max(0.5, (2 + depth * 2.5) / 2);
+        const screenY = cy - p.y * SCALE;
+        const dotSize = Math.max(0.6, (2 + depth * 2.5) / 2);
 
         ctx.fillStyle = getCol(depth);
         ctx.beginPath();
@@ -108,8 +116,30 @@
         ctx.fill();
       }
 
+      // Если все точки оказались позади, гарантированно рисуем букву
+      if (!letterDrawn) {
+        drawLetter(cx, cy);
+      }
+
       theta += step;
       setTimeout(() => requestAnimationFrame(loop), 25);
+    }
+
+    // Функция отрисовки буквы "Н"
+    function drawLetter(cx, cy) {
+      ctx.save();
+      ctx.font = 'bold 64px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      // Неоновое свечение буквы
+      ctx.shadowColor = 'rgba(255, 60, 90, 0.85)';
+      ctx.shadowBlur = 18;
+      ctx.fillStyle = '#ffffff';
+      
+      // Небольшое смещение по высоте для точного визуального центра сердца
+      ctx.fillText('Н', cx, cy - 10);
+      ctx.restore();
     }
 
     loop();
