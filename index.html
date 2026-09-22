@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heart Animation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #000000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const size = Math.min(window.innerWidth, window.innerHeight, 750);
+    canvas.width = size;
+    canvas.height = size;
+
+    const cx = size / 2;
+    const cy = size / 2;
+
+    // Математическая формула сердца из видео
+    function heart(n) {
+      const x = 15 * Math.pow(Math.sin(n), 3);
+      const y = 12 * Math.cos(n) - 5 * Math.cos(2 * n) - 2 * Math.cos(3 * n) - Math.cos(4 * n);
+      return { x, y };
+    }
+
+    // Настройки неоновой красной линии
+    ctx.strokeStyle = '#ff0033';
+    ctx.lineWidth = 3.5;
+    ctx.shadowColor = '#ff1144';
+    ctx.shadowBlur = 12;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    let i = 0;
+    const totalLayers = 16;
+    let j = 0;
+    const maxSteps = 100;
+
+    function draw() {
+      if (i >= totalLayers) return;
+
+      // Рисуем по несколько точек за кадр для плавной быстрой анимации
+      for (let k = 0; k < 3; k++) {
+        if (j >= maxSteps) {
+          j = 0;
+          i++;
+          if (i >= totalLayers) return;
+        }
+
+        const p0 = heart(j / 15);
+        const p1 = heart((j + 1) / 15);
+
+        ctx.beginPath();
+        ctx.moveTo(cx + p0.x * i, cy - p0.y * i);
+        ctx.lineTo(cx + p1.x * i, cy - p1.y * i);
+        ctx.stroke();
+
+        j++;
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  </script>
+</body>
+</html>
