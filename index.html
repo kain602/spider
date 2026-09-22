@@ -25,7 +25,7 @@
       overflow: hidden;
     }
 
-    /* Письмо / конверт */
+    /* Экран письма */
     .envelope-box {
       text-align: center;
       cursor: pointer;
@@ -48,14 +48,14 @@
       letter-spacing: 1px;
     }
 
-    /* Окошко */
+    /* Пиксельное окно */
     .letter-window {
       position: absolute;
       width: 350px;
       background: #ffffff;
       border: 4px solid #ff4d6d;
       box-shadow: 8px 8px 0px #ff9ebb;
-      padding: 18px;
+      padding: 20px;
       display: none;
       flex-direction: column;
       align-items: center;
@@ -92,15 +92,26 @@
       color: #ff4d6d;
       font-size: 13px;
       line-height: 1.6;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
       text-align: center;
     }
 
-    .cat-art {
-      width: 140px;
-      height: 140px;
+    /* Обертка для строгого центрирования гифки/видео */
+    .media-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       margin-bottom: 20px;
-      object-fit: contain;
+    }
+
+    .cat-media {
+      width: 170px;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 12px;
+      display: block;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
     }
 
     /* Кнопки */
@@ -140,7 +151,7 @@
       transition: left 0.15s ease, top 0.15s ease;
     }
 
-    /* Финальное окно */
+    /* Экран согласия */
     .success-content {
       display: none;
       flex-direction: column;
@@ -157,7 +168,7 @@
 
     .success-sub {
       color: #ff4d6d;
-      font-size: 11px;
+      font-size: 12px;
       line-height: 1.6;
       margin-top: 14px;
       border-top: 2px dashed #ffb6c1;
@@ -172,7 +183,6 @@
 </head>
 <body>
 
-  <!-- Начальный экран: конверт -->
   <div class="envelope-box" id="envelopeBox" onclick="openLetter()">
     <svg class="envelope-svg" viewBox="0 0 100 80">
       <rect x="5" y="15" width="90" height="60" rx="6" fill="#fff5f7" stroke="#ff4d6d" stroke-width="3.5" />
@@ -183,7 +193,6 @@
     <div class="envelope-label">&#9825; Открой меня &#9825;</div>
   </div>
 
-  <!-- Окно с вопросом -->
   <div class="letter-window" id="letterWindow">
     <div class="window-header">
       <span>L O V E</span>
@@ -198,8 +207,12 @@
     <div id="interactiveArea" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
       <div class="question">Любишь ли меня?</div>
       
-      <!-- Милый котик с сердечком -->
-      <img class="cat-art" src="https://media.tenor.com/efbquK5ttqYAAAAC/cat-rose.gif" alt="Котик">
+      <!-- Контейнер точного центрирования -->
+      <div class="media-container">
+        <video class="cat-media" autoplay loop muted playsinline>
+          <source src="cat.mp4.MP4" type="video/mp4">
+        </video>
+      </div>
 
       <div class="buttons">
         <button class="btn yes-btn" onclick="acceptAnswer()">ДА</button>
@@ -207,10 +220,11 @@
       </div>
     </div>
 
-    <!-- Финальный блок -->
     <div class="success-content" id="successArea">
       <div class="success-title">Урррааа! 🥰</div>
-      <img class="cat-art" src="https://media.tenor.com/zGm5acSjHCIAAAAC/cat-jumping-happy-cat.gif" alt="Радостный котик">
+      <div class="media-container">
+        <img class="cat-media" src="https://media.tenor.com/zGm5acSjHCIAAAAC/cat-jumping-happy-cat.gif" alt="Радостный котик">
+      </div>
       <div class="success-sub">Я тя тоже жаным ❤️</div>
     </div>
   </div>
@@ -225,13 +239,10 @@
       }, 20);
     }
 
-    // Логика побега кнопки "НЕТ" при попытке наведения или клика
     function dodgeNo(e) {
       if (e) e.preventDefault();
       const btn = document.getElementById('noBtn');
-      const win = document.getElementById('letterWindow').getBoundingClientRect();
 
-      // Случайное новое положение в пределах экрана, подальше от курсора
       const padding = 20;
       const maxX = window.innerWidth - btn.offsetWidth - padding;
       const maxY = window.innerHeight - btn.offsetHeight - padding;
