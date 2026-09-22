@@ -26,7 +26,7 @@
       position: relative;
     }
 
-    /* Экран письма */
+    /* Письмо / Конверт */
     .envelope-box {
       text-align: center;
       cursor: pointer;
@@ -78,7 +78,7 @@
       align-items: center;
       border-bottom: 3px dashed #ff9ebb;
       padding-bottom: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       color: #ff4d6d;
       font-size: 12px;
     }
@@ -93,26 +93,8 @@
       color: #ff4d6d;
       font-size: 14px;
       line-height: 1.8;
-      margin: 15px 0 25px 0;
+      margin-bottom: 32px;
       text-align: center;
-    }
-
-    /* Обертка для видео */
-    .media-container {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 10px 0 16px 0;
-    }
-
-    .cat-media {
-      width: 170px;
-      height: 170px;
-      object-fit: cover;
-      border-radius: 12px;
-      display: block;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
     }
 
     /* Кнопки */
@@ -123,7 +105,7 @@
       gap: 25px;
       position: relative;
       width: 100%;
-      min-height: 50px;
+      min-height: 52px;
     }
 
     .btn {
@@ -154,7 +136,7 @@
       z-index: 100;
     }
 
-    /* Финальный экран */
+    /* Финальный экран (появляется после «ДА») */
     .success-content {
       display: none;
       flex-direction: column;
@@ -166,7 +148,24 @@
     .success-title {
       color: #ff4d6d;
       font-size: 15px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .media-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 12px 0 16px 0;
+    }
+
+    .custom-media {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 14px;
+      display: block;
+      box-shadow: 0 4px 12px rgba(255, 77, 109, 0.18);
     }
 
     .success-sub {
@@ -186,7 +185,7 @@
 </head>
 <body>
 
-  <!-- Экран 1: Закрытое письмо -->
+  <!-- Экран 1: Закрытый конверт -->
   <div class="envelope-box" id="envelopeBox" onclick="openLetter()">
     <svg class="envelope-svg" viewBox="0 0 100 80">
       <rect x="5" y="15" width="90" height="60" rx="6" fill="#fff5f7" stroke="#ff4d6d" stroke-width="3.5" />
@@ -197,7 +196,7 @@
     <div class="envelope-label">&#9825; Открой меня &#9825;</div>
   </div>
 
-  <!-- Экран 2: Вопрос и кнопки -->
+  <!-- Окно валентинки -->
   <div class="letter-window" id="letterWindow">
     <div class="window-header">
       <span>L O V E</span>
@@ -209,6 +208,7 @@
       </div>
     </div>
 
+    <!-- Экран 2: Только вопрос и кнопки (без гифки) -->
     <div id="interactiveArea" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
       <div class="question">Любишь ли меня?</div>
 
@@ -218,12 +218,12 @@
       </div>
     </div>
 
-    <!-- Экран 3: Финал после согласия -->
+    <!-- Экран 3: Твоя анимация вместо кота -->
     <div class="success-content" id="successArea">
       <div class="success-title">Урррааа! 🥰</div>
       
       <div class="media-container">
-        <video id="finalVideo" class="cat-media" loop muted playsinline>
+        <video id="finalVideo" class="custom-media" loop muted playsinline>
           <source src="cat.mp4.MP4" type="video/mp4">
         </video>
       </div>
@@ -242,14 +242,13 @@
       }, 20);
     }
 
-    // Мягкий побег кнопки "НЕТ" строго вокруг валентинки
+    // Кнопка НЕТ мягко убегает вокруг валентинки
     function dodgeNo(e) {
       if (e) e.preventDefault();
       const btn = document.getElementById('noBtn');
       const win = document.getElementById('letterWindow');
       const winRect = win.getBoundingClientRect();
 
-      // Ограничиваем область небольшим ореолом вокруг валентинки (+-60px)
       const margin = 60;
       const minX = Math.max(10, winRect.left - margin);
       const maxX = Math.min(window.innerWidth - btn.offsetWidth - 10, winRect.right + margin - btn.offsetWidth);
@@ -264,6 +263,7 @@
       btn.style.top = `${randomY}px`;
     }
 
+    // Реакция на нажатие ДА
     function acceptAnswer() {
       document.getElementById('interactiveArea').style.display = 'none';
       document.getElementById('successArea').style.display = 'flex';
