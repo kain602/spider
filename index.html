@@ -3,146 +3,256 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Heart with Letter H</title>
+  <title>Valentine Letter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      font-family: 'Press Start 2P', monospace;
     }
+
     body {
-      background-color: #050002;
+      background-color: #ffdce5;
+      background-image: radial-gradient(#ffb6c1 1.5px, transparent 1.5px);
+      background-size: 24px 24px;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       overflow: hidden;
     }
-    canvas {
-      display: block;
+
+    /* --- Конверт --- */
+    .envelope-box {
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.25s ease;
+    }
+
+    .envelope-box:hover {
+      transform: scale(1.05);
+    }
+
+    .envelope-svg {
+      width: 170px;
+      filter: drop-shadow(0 10px 15px rgba(235, 110, 130, 0.35));
+    }
+
+    .envelope-label {
+      margin-top: 18px;
+      color: #df405a;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+
+    /* --- Пиксельное окно валентинки --- */
+    .letter-window {
+      position: absolute;
+      width: 360px;
+      background: #ffffff;
+      border: 4px solid #ff4d6d;
+      box-shadow: 8px 8px 0px #ff9ebb;
+      padding: 18px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      transform: scale(0.7);
+      transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .letter-window.open {
+      display: flex;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .window-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px dashed #ff9ebb;
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+      color: #ff4d6d;
+      font-size: 13px;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .question {
+      color: #ff4d6d;
+      font-size: 11px;
+      line-height: 1.6;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .cat-art {
+      width: 140px;
+      height: 140px;
+      margin-bottom: 20px;
+      image-rendering: pixelated;
+    }
+
+    /* --- Кнопки (по видео) --- */
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      position: relative;
+      width: 100%;
+      min-height: 52px;
+    }
+
+    .no-wrapper {
+      position: relative;
+    }
+
+    .btn {
+      width: 120px;
+      cursor: pointer;
+      user-select: none;
+      height: 44px;
+      font-size: 11px;
+      border: 3px solid #ff4d6d;
+      background: #ffffff;
+      color: #ff4d6d;
+      box-shadow: 4px 4px 0px #ff9ebb;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px #ff9ebb;
+    }
+
+    .yes-btn {
+      background: #ff4d6d;
+      color: #ffffff;
+      box-shadow: 4px 4px 0px #ba1333;
+    }
+
+    .no-btn {
+      width: 120px;
+      height: 44px;
+      display: inline-block;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* --- Финальный блок согласия --- */
+    .success-content {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .success-title {
+      color: #ff4d6d;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .success-sub {
+      color: #ff4d6d;
+      font-size: 8px;
+      line-height: 1.5;
+      margin-top: 14px;
+      border-top: 2px dashed #ffb6c1;
+      padding-top: 10px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+
+  <!-- Экран закрытого письма -->
+  <div class="envelope-box" id="envelopeBox" onclick="openLetter()">
+    <svg class="envelope-svg" viewBox="0 0 100 80">
+      <rect x="5" y="15" width="90" height="60" rx="6" fill="#fff5f7" stroke="#ff4d6d" stroke-width="3.5" />
+      <polygon points="5,18 50,52 95,18" fill="#ffe3ea" stroke="#ff4d6d" stroke-width="3" />
+      <circle cx="50" cy="45" r="7" fill="#ff4d6d" />
+      <path d="M47 43 a2 2 0 0 1 3 0 a2 2 0 0 1 3 0 c0 3 -3 4.5 -3 4.5 s-3 -1.5 -3 -4.5 z" fill="#ffffff" />
+    </svg>
+    <div class="envelope-label">&#9825; Letter For You &#9825;</div>
+  </div>
+
+  <!-- Открытое пиксельное окно -->
+  <div class="letter-window" id="letterWindow">
+    <div class="window-header">
+      <span>L O V E</span>
+      <div class="header-icons">
+        <span>&#9829;</span>
+        <span>-</span>
+        <span>&#9633;</span>
+        <span>&times;</span>
+      </div>
+    </div>
+
+    <!-- Интерактивная зона с вопросом -->
+    <div id="interactiveArea" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+      <div class="question">Will you be my Valentine?</div>
+      
+      <!-- Котик с розой -->
+      <img class="cat-art" src="https://media.tenor.com/efbquK5ttqYAAAAC/cat-rose.gif" alt="Cat with rose">
+
+      <div class="buttons">
+        <button class="btn yes-btn" onclick="acceptValentine()">YES</button>
+        <div class="no-wrapper">
+          <button class="btn no-btn" id="noBtn" onmouseover="dodgeNo()" onclick="dodgeNo()">NO</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Состояние после нажатия YES -->
+    <div class="success-content" id="successArea">
+      <div class="success-title">Yippeeee!</div>
+      <img class="cat-art" src="https://media.tenor.com/zGm5acSjHCIAAAAC/cat-jumping-happy-cat.gif" alt="Happy Cat">
+      <div class="success-sub">Valentine Date: Steak Restaurant at 7pm, dress fancy! &#10084;</div>
+    </div>
+  </div>
 
   <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-
-    const WIDTH = 600;
-    const HEIGHT = 700;
-    canvas.width = WIDTH;
-    canvas.height = HEIGHT;
-
-    const SCALE = 115;
-    const N = 2200;
-    const pts = [];
-
-    // Математическая формула сердца
-    function heart(u) {
-      const x = 1.6 * Math.pow(Math.sin(u), 3);
-      const y = 1.3 * Math.cos(u) - 0.5 * Math.cos(2 * u) - 0.2 * Math.cos(3 * u) - 0.1 * Math.cos(4 * u);
-      return { x, y };
+    function openLetter() {
+      document.getElementById('envelopeBox').style.display = 'none';
+      const win = document.getElementById('letterWindow');
+      win.style.display = 'flex';
+      setTimeout(() => {
+        win.classList.add('open');
+      }, 20);
     }
 
-    // Генерация точек объема 3D-сердца
-    for (let i = 0; i < N; i++) {
-      const u = Math.random() * 2 * Math.PI;
-      const h = heart(u);
-      const rad = Math.sqrt(Math.random());
-      const x = h.x * rad;
-      const y = h.y * rad;
-      const z = 1.1 * (1 - rad) * (Math.random() * 2 - 1);
-      pts.push({ x, y, z });
+    function dodgeNo() {
+      const btn = document.getElementById('noBtn');
+      // Диапазон смещения кнопки при наведении курсора
+      const randomX = (Math.random() - 0.5) * 220;
+      const randomY = (Math.random() - 0.5) * 160;
+
+      btn.style.position = 'fixed';
+      btn.style.left = `calc(50% + ${randomX}px)`;
+      btn.style.top = `calc(60% + ${randomY}px)`;
     }
 
-    // Градиент цвета точек по глубине
-    function getCol(f) {
-      f = Math.max(0, Math.min(1, f));
-      const r1 = 70, g1 = 0, b1 = 10;
-      const r2 = 255, g2 = 30, b2 = 50;
-      const r = Math.round(r1 + (r2 - r1) * f);
-      const g = Math.round(g1 + (g2 - g1) * f);
-      const b = Math.round(b1 + (b2 - b1) * f);
-      return `rgb(${r}, ${g}, ${b})`;
+    function acceptValentine() {
+      document.getElementById('interactiveArea').style.display = 'none';
+      document.getElementById('successArea').style.display = 'flex';
+      const noBtn = document.getElementById('noBtn');
+      if (noBtn) noBtn.style.display = 'none';
     }
-
-    let theta = 0;
-    const step = 0.035;
-
-    function loop() {
-      // Очищаем кадр
-      ctx.fillStyle = '#050002';
-      ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-      const ct = Math.cos(theta);
-      const st = Math.sin(theta);
-
-      // Вращение точек вокруг вертикальной оси
-      const proj = [];
-      for (let i = 0; i < pts.length; i++) {
-        const p = pts[i];
-        const xr = p.x * ct + p.z * st;
-        const zr = -p.x * st + p.z * ct;
-        proj.push({ xr, y: p.y, zr });
-      }
-
-      // Сортировка по глубине Z
-      proj.sort((a, b) => a.zr - b.zr);
-
-      const cx = WIDTH / 2;
-      const cy = HEIGHT / 2;
-
-      // Отрисовка дальних точек сердца (позади буквы)
-      let letterDrawn = false;
-      for (let i = 0; i < proj.length; i++) {
-        const p = proj[i];
-
-        // Когда переходим к передней половине точек (zr >= 0), рисуем букву по центру
-        if (!letterDrawn && p.zr >= 0) {
-          drawLetter(cx, cy);
-          letterDrawn = true;
-        }
-
-        const depth = (p.zr + 1.1) / 2.2;
-        const screenX = cx + p.xr * SCALE;
-        const screenY = cy - p.y * SCALE;
-        const dotSize = Math.max(0.6, (2 + depth * 2.5) / 2);
-
-        ctx.fillStyle = getCol(depth);
-        ctx.beginPath();
-        ctx.arc(screenX, screenY, dotSize, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Если все точки оказались позади, гарантированно рисуем букву
-      if (!letterDrawn) {
-        drawLetter(cx, cy);
-      }
-
-      theta += step;
-      setTimeout(() => requestAnimationFrame(loop), 25);
-    }
-
-    // Функция отрисовки буквы "Н"
-    function drawLetter(cx, cy) {
-      ctx.save();
-      ctx.font = 'bold 64px Arial, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      
-      // Неоновое свечение буквы
-      ctx.shadowColor = 'rgba(255, 60, 90, 0.85)';
-      ctx.shadowBlur = 18;
-      ctx.fillStyle = '#ffffff';
-      
-      // Небольшое смещение по высоте для точного визуального центра сердца
-      ctx.fillText('Н', cx, cy - 10);
-      ctx.restore();
-    }
-
-    loop();
   </script>
 </body>
 </html>
