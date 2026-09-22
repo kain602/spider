@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Heart Animation</title>
   <style>
     * {
@@ -11,12 +11,12 @@
       box-sizing: border-box;
     }
     body {
-      background-color: #000000;
+      background-color: #000;
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      overflow: hidden;
     }
     canvas {
       display: block;
@@ -30,12 +30,12 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    const size = Math.min(window.innerWidth, window.innerHeight, 750);
-    canvas.width = size;
-    canvas.height = size;
-
-    const cx = size / 2;
-    const cy = size / 2;
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
 
     // Математическая формула сердца из видео
     function heart(n) {
@@ -44,45 +44,48 @@
       return { x, y };
     }
 
-    // Настройки неоновой красной линии
-    ctx.strokeStyle = '#ff0033';
+    let i = 0;
+    let j = 0;
+    const totalRings = 16;
+    const pointsPerRing = 100;
+    const speedPerFrame = 2; // Количество шагов за один кадр для плавной анимации
+
+    ctx.strokeStyle = '#ff1744';
     ctx.lineWidth = 3.5;
-    ctx.shadowColor = '#ff1144';
-    ctx.shadowBlur = 12;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    let i = 0;
-    const totalLayers = 16;
-    let j = 0;
-    const maxSteps = 100;
-
     function draw() {
-      if (i >= totalLayers) return;
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
 
-      // Рисуем по несколько точек за кадр для плавной быстрой анимации
-      for (let k = 0; k < 3; k++) {
-        if (j >= maxSteps) {
-          j = 0;
-          i++;
-          if (i >= totalLayers) return;
-        }
+      for (let s = 0; s < speedPerFrame; s++) {
+        if (i >= totalRings) return;
 
-        const p0 = heart(j / 15);
-        const p1 = heart((j + 1) / 15);
+        const scale = i; // Масштабирование контура сердца
+
+        const p1 = heart(j / 15);
+        const nextJ = j + 0.5;
+        const p2 = heart(nextJ / 15);
 
         ctx.beginPath();
-        ctx.moveTo(cx + p0.x * i, cy - p0.y * i);
-        ctx.lineTo(cx + p1.x * i, cy - p1.y * i);
+        // Инвертируем y, так как в turtle ось Y направлена вверх, а в Canvas — вниз
+        ctx.moveTo(cx + p1.x * scale, cy - p1.y * scale);
+        ctx.lineTo(cx + p2.x * scale, cy - p2.y * scale);
         ctx.stroke();
 
-        j++;
+        j = nextJ;
+
+        if (j >= pointsPerRing) {
+          j = 0;
+          i++;
+        }
       }
 
       requestAnimationFrame(draw);
     }
 
-    draw();
+    requestAnimationFrame(draw);
   </script>
 </body>
 </html>
